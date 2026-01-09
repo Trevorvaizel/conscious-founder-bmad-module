@@ -60,7 +60,7 @@ fi
 echo ""
 
 # Step 2: Remove knowledge symlink
-echo -e "${YELLOW}[2/5] Removing knowledge base symlink...${NC}"
+echo -e "${YELLOW}[2/6] Removing knowledge base symlink...${NC}"
 KNOWLEDGE_DST="$MODULE_ROOT/knowledge"
 
 if [ -L "$KNOWLEDGE_DST" ]; then
@@ -71,8 +71,22 @@ else
 fi
 echo ""
 
-# Step 3: Ask about data preservation
-echo -e "${YELLOW}[3/5] Checking output data...${NC}"
+# Step 3: Remove slash commands
+echo -e "${YELLOW}[3/6] Removing slash commands...${NC}"
+COMMANDS_DIR="$PROJECT_ROOT/.claude/commands/bmad/$MODULE_NAME"
+
+if [ -d "$COMMANDS_DIR" ]; then
+    rm -rf "$COMMANDS_DIR"
+    echo -e "${GREEN}✓ Slash commands removed${NC}"
+    echo -e "  ${GREEN}✓${NC} Removed 4 agent commands"
+    echo -e "  ${GREEN}✓${NC} Removed 4 workflow commands"
+else
+    echo -e "${YELLOW}⚠ No slash commands found${NC}"
+fi
+echo ""
+
+# Step 4: Ask about data preservation
+echo -e "${YELLOW}[4/6] Checking output data...${NC}"
 OUTPUT_BASE="$PROJECT_ROOT/_bmad-output/$MODULE_NAME"
 
 if [ -d "$OUTPUT_BASE" ]; then
@@ -90,8 +104,8 @@ else
 fi
 echo ""
 
-# Step 4: Remove module directory
-echo -e "${YELLOW}[4/5] Removing module directory...${NC}"
+# Step 5: Remove module directory
+echo -e "${YELLOW}[5/6] Removing module directory...${NC}"
 if [ -d "$MODULE_ROOT" ]; then
     # Remove everything except the uninstall script itself
     find "$MODULE_ROOT" -mindepth 1 ! -name "uninstall.sh" -delete
@@ -101,8 +115,8 @@ else
 fi
 echo ""
 
-# Step 5: Final cleanup
-echo -e "${YELLOW}[5/5] Final cleanup...${NC}"
+# Step 6: Final cleanup
+echo -e "${YELLOW}[6/6] Final cleanup...${NC}"
 # Remove uninstall script itself
 rm "$SCRIPT_DIR/uninstall.sh"
 echo -e "${GREEN}✓ Uninstallation complete${NC}"

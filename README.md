@@ -242,12 +242,17 @@ conscious-founder/
 
 ## 📚 Documentation
 
-- **INSTALL.md** - Detailed installation guide
-- **CONVERSION_GUIDE.md** - Essence preservation pattern with before/after examples
-- **TESTING_CHECKLIST.md** - Side-by-side verification procedures
-- **TUTORIAL.md** - Learn by doing: convert your first agent
-- **PATTERNS.md** - Reusable patterns (knowledge base, checkpoints, state persistence)
-- **TROUBLESHOOTING.md** - Common issues and fixes
+**Essential Guides (in `docs/` folder):**
+- **[docs/CONVERSION_GUIDE.md](docs/CONVERSION_GUIDE.md)** - Essence preservation pattern with before/after examples
+- **[docs/TESTING_CHECKLIST.md](docs/TESTING_CHECKLIST.md)** - Side-by-side verification procedures
+- **[docs/TUTORIAL.md](docs/TUTORIAL.md)** - Learn by doing: convert your first agent
+- **[docs/PATTERNS.md](docs/PATTERNS.md)** - Reusable patterns (knowledge base, checkpoints, state persistence)
+- **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Common issues and fixes
+
+**Additional Documentation:**
+- **[INSTALLATION.md](INSTALLATION.md)** - Detailed installation guide
+- **[USAGE_GUIDE.md](USAGE_GUIDE.md)** - How to use the module
+- **[ADVERSARIAL_REVIEW_REPORT.md](../ADVERSARIAL_REVIEW_REPORT.md)** - Comprehensive validation report
 
 ---
 
