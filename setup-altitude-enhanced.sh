@@ -1,10 +1,14 @@
 #!/bin/bash
 ###############################################################################
-# Enhanced Altitude Engine Setup Script
+# Enhanced Altitude Engine Setup Script (FIXED VERSION)
 # Automatically installs dependencies and initializes vector database
 ###############################################################################
 
 set -e  # Exit on error
+
+# Get script directory (FIX: No hardcoded paths)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"  # Ensure we're always in script directory
 
 # Colors for output
 RED='\033[0;31m'
@@ -13,11 +17,15 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Configuration
+# Configuration (FIX: Use relative paths from script directory)
 PYTHON_MIN_VERSION="3.8"
 REQUIRED_PACKAGES="sentence-transformers numpy"
 DB_PATH="data/vector-embeddings.db"
 LOG_FILE="altitude-setup.log"
+
+# Global flags
+NETWORK_AVAILABLE=true
+HUGGINGFACE_REACHABLE=false
 
 # Functions
 log() {
@@ -50,9 +58,11 @@ check_python_version() {
 
     if ! command -v python3 &> /dev/null; then
         error "Python 3 is not installed"
-        echo "Please install Python 3.8 or higher"
+        echo ""
+        echo "Please install Python 3.8 or higher:"
         echo "  Ubuntu/Debian: sudo apt install python3 python3-pip"
         echo "  macOS: brew install python3"
+        echo "  Windows: https://www.python.org/downloads/"
         exit 1
     fi
 
@@ -78,12 +88,46 @@ check_disk_space() {
 
     if [ "$AVAILABLE_MB" -lt "$REQUIRED_MB" ]; then
         error "Insufficient disk space: ${AVAILABLE_MB}MB available, ${REQUIRED_MB}MB required"
+        echo ""
+        echo "Please free up disk space:"
+        echo "  - Delete unnecessary files"
+        echo "  - Clear package caches: pip cache purge"
+        echo "  - Remove old HuggingFace models: rm -rf ~/.cache/huggingface/hub/"
         exit 1
     fi
 
-    log "✓ Sufficient disk space (${AVAILABLE_MB}MB available)"
+    log "✓ Sufficient disk space (${AVAILABLE_MB}MB available, ${REQUIRED_MB}MB required)"
 }
 
+# FIX: Check network connectivity before attempting download
+check_network_connectivity() {
+    log "Checking network connectivity..."
+
+    # Basic internet connectivity
+    if ping -c 1 -W 2 huggingface.co &> /dev/null; then
+        HUGGINGFACE_REACHABLE=true
+        log "✓ HuggingFace reachable"
+    else
+        warn "Cannot reach HuggingFace (model download server)"
+        HUGGINGFACE_REACHABLE=false
+        NETWORK_AVAILABLE=false
+
+        echo ""
+        echo "This may be due to:"
+        echo "  - No internet connection"
+        echo "  - Firewall blocking huggingface.co"
+        echo "  - HuggingFace service temporarily down"
+        echo ""
+        read -p "Continue anyway? Altitude Engine will skip model download. (y/N): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            log "Setup cancelled by user"
+            exit 1
+        fi
+    fi
+}
+
+# FIX: Use python3 -m pip to install to correct environment
 install_dependencies() {
     log "Checking Python dependencies..."
 
@@ -102,25 +146,24 @@ install_dependencies() {
     if [ -n "$MISSING_PACKAGES" ]; then
         info "Installing missing packages:$MISSING_PACKAGES"
 
-        # Try pip3, fallback to pip
-        if command -v pip3 &> /dev/null; then
-            PIP_CMD="pip3 install"
-        elif command -v pip &> /dev/null; then
-            PIP_CMD="pip install"
-        else
-            error "Neither pip3 nor pip found"
-            echo "Please install pip:"
-            echo "  sudo apt install python3-pip  # Ubuntu/Debian"
-            echo "  python3 -m ensurepip --upgrade  # Alternative"
-            exit 1
-        fi
+        # FIX: Use python3 -m pip to install to correct Python environment
+        log "Installing with: python3 -m pip install$MISSING_PACKAGES"
 
-        log "Running: $PIP_CMD$MISSING_PACKAGES"
-
-        if $PIP_CMD $MISSING_PACKAGES 2>&1 | tee -a "$LOG_FILE"; then
+        if python3 -m pip install $MISSING_PACKAGES 2>&1 | tee -a "$LOG_FILE"; then
             log "✓ Packages installed successfully"
         else
             error "Failed to install packages"
+            echo ""
+            echo "Installation failed. This may be due to:"
+            echo "  - No pip installed"
+            echo "  - Insufficient permissions"
+            echo "  - Network issues"
+            echo ""
+            echo "Try installing manually:"
+            echo "  python3 -m pip install$MISSING_PACKAGES"
+            echo ""
+            echo "Or with user flag:"
+            echo "  python3 -m pip install --user$MISSING_PACKAGES"
             exit 1
         fi
     else
@@ -131,10 +174,45 @@ install_dependencies() {
 create_directories() {
     log "Creating necessary directories..."
 
-    mkdir -p data
     mkdir -p data/exports
 
     log "✓ Directories created"
+}
+
+# FIX: Add database lock detection
+check_database_lock() {
+    if [ -f "$DB_PATH" ]; then
+        log "Checking for database locks..."
+
+        # Try to open database exclusively
+        python3 << 'EOF' 2>/dev/null
+import sqlite3
+import sys
+try:
+    conn = sqlite3.connect('data/vector-embeddings.db', timeout=1)
+    cursor = conn.cursor()
+    cursor.execute('PRAGMA locking_mode')
+    conn.close()
+    sys.exit(0)
+except sqlite3.OperationalError:
+    sys.exit(1)
+EOF
+
+        if [ $? -ne 0 ]; then
+            error "Database is locked by another process"
+            echo ""
+            echo "This may be due to:"
+            echo "  - Another installation running"
+            echo "  - Previous installation crashed"
+            echo "  - Another process using the database"
+            echo ""
+            echo "Options:"
+            echo "  1. Wait 30 seconds and try again"
+            echo "  2. Delete database and retry: rm data/vector-embeddings.db"
+            echo "  3. Reboot your system"
+            exit 1
+        fi
+    fi
 }
 
 initialize_database() {
@@ -142,6 +220,37 @@ initialize_database() {
 
     if [ -f "$DB_PATH" ]; then
         warn "Database already exists at $DB_PATH"
+
+        # FIX: Verify database integrity before reusing
+        python3 << 'EOF' 2>/dev/null
+import sqlite3
+import sys
+try:
+    conn = sqlite3.connect('data/vector-embeddings.db', timeout=10)
+    cursor = conn.cursor()
+    cursor.execute('PRAGMA integrity_check')
+    result = cursor.fetchone()
+    conn.close()
+    if result[0] == 'ok':
+        print("✓ Database integrity verified")
+        sys.exit(0)
+    else:
+        print(f"✗ Database corrupted: {result[0]}")
+        sys.exit(1)
+except Exception as e:
+    print(f"✗ Database check failed: {e}")
+    sys.exit(1)
+EOF
+
+        if [ $? -ne 0 ]; then
+            error "Existing database is corrupted"
+            echo ""
+            echo "Options:"
+            echo "  1. Delete and recreate: rm data/vector-embeddings.db && bash setup-altitude-enhanced.sh"
+            echo "  2. Backup first: cp data/vector-embeddings.db data/vector-embeddings.db.backup"
+            exit 1
+        fi
+
         read -p "Do you want to reinitialize? This will delete existing data. (y/N): " -n 1 -r
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -178,7 +287,8 @@ except Exception as e:
     print(f"✗ Error: {e}")
     sys.exit(1)
 finally:
-    engine.close()
+    if 'engine' in locals():
+        engine.close()
 EOF
 
     if [ $? -eq 0 ]; then
@@ -189,6 +299,7 @@ EOF
     fi
 }
 
+# FIX: Enhanced verification with database integrity check
 verify_installation() {
     log "Verifying installation..."
 
@@ -222,18 +333,39 @@ except Exception as e:
     print(f"✗ numpy not available: {e}")
     errors.append("numpy_error")
 
-# Test database
+# Test database with integrity check
 try:
+    import sqlite3
+    conn = sqlite3.connect('data/vector-embeddings.db', timeout=10)
+    cursor = conn.cursor()
+
+    # Integrity check
+    cursor.execute('PRAGMA integrity_check')
+    result = cursor.fetchone()
+
+    if result[0] == 'ok':
+        print("✓ Database integrity verified")
+    else:
+        print(f"✗ Database integrity check failed: {result[0]}")
+        errors.append("database_corruption")
+
+    # Test Altitude Engine
+    from altitude_engine import AltitudeEngine
     engine = AltitudeEngine('data/vector-embeddings.db', enable_fallback=True)
     engine.initialize()
     print("✓ Database connection successful")
     engine.close()
+
+    conn.close()
+
 except Exception as e:
     print(f"✗ Database test failed: {e}")
     errors.append("database_error")
 
 if errors:
     print(f"\n✗ Verification failed with {len(errors)} error(s)")
+    for err in errors:
+        print(f"  - {err}")
     sys.exit(1)
 else:
     print("\n✓ All verification checks passed")
@@ -258,7 +390,7 @@ print_usage_hint() {
     echo -e "${BLUE}Next Steps:${NC}"
     echo ""
     echo "1. Test the Altitude Engine:"
-    echo "   python3 data/altitude_engine.py search --query 'creative intuition'"
+    echo "   python3 -c 'import sys; sys.path.insert(0, \"data\"); from altitude_engine import AltitudeEngine; print(\"✓ Altitude Engine working\")'"
     echo ""
     echo "2. Use in your workflows:"
     echo "   from data.altitude_engine import AltitudeEngine"
@@ -267,6 +399,7 @@ print_usage_hint() {
     echo ""
     echo "3. View documentation:"
     echo "   cat ALTITUDE_ENGINE.md"
+    echo "   cat INSTALLATION.md"
     echo ""
     echo -e "${YELLOW}Note:${NC} The ML model (~80MB) will download on first use"
     echo "       Location: ~/.cache/huggingface/"
@@ -280,11 +413,14 @@ main() {
 
     log "Starting Altitude Engine setup..."
     log "Log file: $LOG_FILE"
+    log "Working directory: $SCRIPT_DIR"
 
     check_python_version
     check_disk_space
+    check_network_connectivity  # FIX: Added network check
     install_dependencies
     create_directories
+    check_database_lock         # FIX: Added lock check
     initialize_database
 
     if verify_installation; then
