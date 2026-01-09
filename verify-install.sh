@@ -123,6 +123,85 @@ run_test "Return workflow exists" "[ -f '$MODULE_ROOT/workflows/return.yaml' ]"
 run_test "Repurpose workflow exists" "[ -f '$MODULE_ROOT/workflows/repurpose.yaml' ]"
 
 echo ""
+echo -e "${BLUE}=== Altitude Engine Tests ===${NC}"
+echo ""
+
+# Change to module directory for Altitude Engine tests
+cd "$SCRIPT_DIR"
+
+run_test "Altitude Engine module exists" "[ -f 'data/altitude_engine.py' ]"
+
+# Test Python imports
+echo -e "${YELLOW}Testing Python dependencies...${NC}"
+TOTAL_TESTS=$((TOTAL_TESTS + 1))
+
+if python3 -c "import sys; sys.path.insert(0, 'data'); import sentence_transformers" 2>/dev/null; then
+    echo -e "${GREEN}✓ PASS${NC}: sentence-transformers installed"
+    PASSED_TESTS=$((PASSED_TESTS + 1))
+else
+    echo -e "${RED}✗ FAIL${NC}: sentence-transformers not installed"
+    FAILED_TESTS=$((FAILED_TESTS + 1))
+fi
+
+TOTAL_TESTS=$((TOTAL_TESTS + 1))
+if python3 -c "import numpy" 2>/dev/null; then
+    echo -e "${GREEN}✓ PASS${NC}: numpy installed"
+    PASSED_TESTS=$((PASSED_TESTS + 1))
+else
+    echo -e "${RED}✗ FAIL${NC}: numpy not installed"
+    FAILED_TESTS=$((FAILED_TESTS + 1))
+fi
+
+TOTAL_TESTS=$((TOTAL_TESTS + 1))
+if python3 -c "import sys; sys.path.insert(0, 'data'); from altitude_engine import AltitudeEngine" 2>/dev/null; then
+    echo -e "${GREEN}✓ PASS${NC}: Altitude Engine module imports"
+    PASSED_TESTS=$((PASSED_TESTS + 1))
+else
+    echo -e "${RED}✗ FAIL${NC}: Altitude Engine import failed"
+    FAILED_TESTS=$((FAILED_TESTS + 1))
+fi
+
+# Test database if it exists
+if [ -f "data/vector-embeddings.db" ]; then
+    echo ""
+    echo -e "${YELLOW}Testing vector database...${NC}"
+
+    TOTAL_TESTS=$((TOTAL_TESTS + 1))
+    if python3 << 'EOF' 2>/dev/null
+import sys
+import sqlite3
+sys.path.insert(0, 'data')
+
+try:
+    # Database integrity
+    conn = sqlite3.connect('data/vector-embeddings.db', timeout=10)
+    cursor = conn.cursor()
+    cursor.execute('PRAGMA integrity_check')
+    result = cursor.fetchone()
+
+    if result[0] == 'ok':
+        print("✓ PASS: Database integrity verified")
+        sys.exit(0)
+    else:
+        print(f"✗ FAIL: Database corrupted: {result[0]}")
+        sys.exit(1)
+except Exception as e:
+    print(f"✗ FAIL: Database check failed: {e}")
+    sys.exit(1)
+finally:
+    if 'conn' in locals():
+        conn.close()
+EOF
+    then
+        PASSED_TESTS=$((PASSED_TESTS + 1))
+    else
+        FAILED_TESTS=$((FAILED_TESTS + 1))
+    fi
+else
+    echo -e "${YELLOW}⚠ INFO: Vector database not yet created (normal before first installation)${NC}"
+fi
+
+echo ""
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}Test Results Summary${NC}"
 echo -e "${BLUE}========================================${NC}"

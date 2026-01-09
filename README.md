@@ -22,26 +22,6 @@ That's it! The installer will:
 
 ---
 
-## 🌟 What This Does
-
-- ✅ **Wraps 4 K2M agents** (Analyst, Architect, Copywriter, Editor) in BMAD format with zero behavioral drift
-- ✅ **Orchestrates 4 workflows** (Inject, Transform, Return, Repurpose) with human-judgment checkpoints
-- ✅ **Implements Altitude Engine** — creative cartography showing patterns across your entire body of work
-- ✅ **Preserves framework essence** — every nuance of ACM framework, juggling patterns, voice constants maintained
-- ✅ **Reference implementation** — template for other creators to wrap their agent systems
-
----
-
-## 🌟 What This Does
-
-- ✅ **Wraps 4 K2M agents** (Analyst, Architect, Copywriter, Editor) in BMAD format with zero behavioral drift
-- ✅ **Orchestrates 4 workflows** (Inject, Transform, Return, Repurpose) with human-judgment checkpoints
-- ✅ **Implements Altitude Engine** — creative cartography showing patterns across your entire body of work
-- ✅ **Preserves framework essence** — every nuance of ACM framework, juggling patterns, voice constants maintained
-- ✅ **Reference implementation** — template for other creators to wrap their agent systems
-
----
-
 ## 🎯 Features
 
 ### Core Agents
@@ -69,28 +49,79 @@ That's it! The installer will:
 
 ## 📦 Installation
 
-### Prerequisites
+### System Requirements
 
-- BMAD framework installed
-- Bash shell
-- Git
+- **Python 3.8 or higher** - Required for Altitude Engine
+- **pip** (Python package installer)
+- **Bash shell** - For installation scripts (Linux/macOS/WSL/Git Bash)
+- **150MB disk space** - For ML model and vector database
+- **Internet connection** - For initial model download (~80MB)
 
-### Quick Install
+### Quick Start (Linux/macOS/WSL)
 
 ```bash
-cd _bmad/modules
-git clone https://github.com/your-username/conscious-founder-bmad-module.git
-cd conscious-founder-bmad-module
+# Clone the repository
+git clone https://github.com/Trevorvaizel/conscious-founder.git
+cd conscious-founder/_bmad/modules/conscious-founder
+
+# Run one-command installation
+bash setup.sh
+```
+
+That's it! The installer will:
+- ✅ Set up Altitude Engine (semantic search)
+- ✅ Install all Python dependencies (sentence-transformers, numpy)
+- ✅ Initialize vector database
+- ✅ Configure module structure
+- ✅ Verify everything works
+
+### Windows Installation
+
+**Option 1: WSL (Windows Subsystem for Linux)**
+```bash
+# Enable WSL and Ubuntu
+wsl
+
+# In WSL terminal:
+git clone https://github.com/Trevorvaizel/conscious-founder.git
+cd conscious-founder/_bmad/modules/conscious-founder
+bash setup.sh
+```
+
+**Option 2: Git Bash**
+```bash
+# In Git Bash:
+git clone https://github.com/Trevorvaizel/conscious-founder.git
+cd conscious-founder/_bmad/modules/conscious-founder
 ./setup.sh
+```
+
+**Option 3: Manual Installation**
+```powershell
+# In PowerShell:
+python -m pip install sentence-transformers numpy
+python -c "import sys; sys.path.insert(0, 'data'); from altitude_engine import AltitudeEngine; engine = AltitudeEngine('data/vector-embeddings.db'); engine.initialize(); print('✓ Altitude Engine ready')"
 ```
 
 ### Verify Installation
 
 ```bash
-./verify-install.sh
+bash verify-install.sh
 ```
 
-Expected output: **35/35 tests passed** ✅
+Expected output: All checks passed ✅
+
+### Troubleshooting
+
+**Installation fails?**
+- Check `altitude-setup.log` for details
+- Verify Python version: `python3 --version`
+- Verify pip: `python3 -m pip --version`
+
+**Need help?**
+- See `INSTALLATION.md` for detailed troubleshooting
+- Check `ALTITUDE_ENGINE.md` for technical documentation
+- Open a GitHub issue
 
 ---
 
