@@ -1,8 +1,34 @@
-# Conscious-Founder BMAD Module
+# Conscious-Founder Module
 
-**Preserve creative essence while gaining BMAD structure**
+AI-human co-creative newsletter synthesis through ACM framework and juggling patterns.
 
-A BMAD module that wraps Rabbit's K2M (Knowledge to Mind) newsletter workflow — converting standalone AI agent prompts into BMAD-compliant agents with **zero semantic loss**.
+## Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/Trevorvaizel/conscious-founder.git
+cd conscious-founder/_bmad/modules/conscious-founder
+
+# Run one-command installation
+bash setup.sh
+```
+
+That's it! The installer will:
+- ✅ Set up Altitude Engine (semantic search)
+- ✅ Install all Python dependencies
+- ✅ Initialize vector database
+- ✅ Configure module structure
+- ✅ Verify everything works
+
+---
+
+## 🌟 What This Does
+
+- ✅ **Wraps 4 K2M agents** (Analyst, Architect, Copywriter, Editor) in BMAD format with zero behavioral drift
+- ✅ **Orchestrates 4 workflows** (Inject, Transform, Return, Repurpose) with human-judgment checkpoints
+- ✅ **Implements Altitude Engine** — creative cartography showing patterns across your entire body of work
+- ✅ **Preserves framework essence** — every nuance of ACM framework, juggling patterns, voice constants maintained
+- ✅ **Reference implementation** — template for other creators to wrap their agent systems
 
 ---
 

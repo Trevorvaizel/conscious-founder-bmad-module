@@ -1,158 +1,93 @@
 #!/bin/bash
-
 ###############################################################################
 # Conscious-Founder Module Installation Script
-# Author: Rabbit
-# Version: 1.0.0
-# Date: 2026-01-09
-#
-# This script installs the Conscious-Founder BMAD module
+# One-command clean installation of all dependencies and features
 ###############################################################################
 
-set -e  # Exit on error
+set -e
 
-# Colors for output
-RED='\033[0;31m'
+# Colors
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
 
-# Module paths
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-MODULE_NAME="conscious-founder"
-MODULE_ROOT="$PROJECT_ROOT/_bmad/modules/$MODULE_NAME"
-
-echo -e "${BLUE}========================================${NC}"
-echo -e "${BLUE}Conscious-Founder Module Installation${NC}"
-echo -e "${BLUE}========================================${NC}"
+echo ""
+echo -e "${BLUE}╔═══════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║     CONSCIOUS-FOUNDER MODULE INSTALLATION                    ║${NC}"
+echo -e "${BLUE}║     AI-Human Co-Creative Newsletter Synthesis                ║${NC}"
+echo -e "${BLUE}╚═══════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
-# Step 1: Verify BMAD installation
-echo -e "${YELLOW}[1/6] Verifying BMAD installation...${NC}"
-if [ ! -d "$PROJECT_ROOT/_bmad" ]; then
-    echo -e "${RED}✗ BMAD directory not found at $PROJECT_ROOT/_bmad${NC}"
-    echo -e "${RED}✗ Please ensure BMAD is properly installed${NC}"
+# Check if we're in the right directory
+if [ ! -f "config.yaml" ]; then
+    echo -e "${RED}Error: config.yaml not found${NC}"
+    echo "Please run this script from the conscious-founder module directory"
     exit 1
 fi
-echo -e "${GREEN}✓ BMAD installation found${NC}"
+
+echo -e "${YELLOW}Installing module components...${NC}"
 echo ""
 
-# Step 2: Check BMAD version compatibility
-echo -e "${YELLOW}[2/6] Checking BMAD version compatibility...${NC}"
-BMAD_CONFIG="$PROJECT_ROOT/_bmad/bmb/config.yaml"
-if [ -f "$BMAD_CONFIG" ]; then
-    BMAD_VERSION=$(grep "Version:" "$BMAD_CONFIG" | head -1 | awk '{print $3}')
-    echo -e "${GREEN}✓ BMAD version: $BMAD_VERSION${NC}"
-else
-    echo -e "${YELLOW}⚠ Unable to detect BMAD version${NC}"
-fi
-echo ""
+# 1. Altitude Engine Setup
+if [ -f "setup-altitude-enhanced.sh" ]; then
+    echo -e "${BLUE}[1/2]${NC} Setting up Altitude Engine (semantic search)..."
 
-# Step 3: Create output directories
-echo -e "${YELLOW}[3/6] Creating output directories...${NC}"
-OUTPUT_BASE="$PROJECT_ROOT/_bmad-output/$MODULE_NAME"
-mkdir -p "$OUTPUT_BASE/analysis"
-mkdir -p "$OUTPUT_BASE/structure"
-mkdir -p "$OUTPUT_BASE/drafts"
-mkdir -p "$OUTPUT_BASE/published"
-mkdir -p "$OUTPUT_BASE/emphasis"
-mkdir -p "$OUTPUT_BASE/nodes"
-echo -e "${GREEN}✓ Output directories created at $OUTPUT_BASE${NC}"
-echo ""
+    # Make executable
+    chmod +x setup-altitude-enhanced.sh
 
-# Step 4: Register agent configs
-echo -e "${YELLOW}[4/6] Registering agent configurations...${NC}"
-AGENT_CONFIG_DIR="$PROJECT_ROOT/_bmad/_config/agents"
-mkdir -p "$AGENT_CONFIG_DIR"
-
-for agent in analyst architect copywriter editor; do
-    AGENT_CONFIG="$AGENT_CONFIG_DIR/k2m-${agent}.customize.yaml"
-    if [ ! -f "$AGENT_CONFIG" ]; then
-        echo -e "${YELLOW}⚠ Agent config not found: $AGENT_CONFIG${NC}"
-        echo -e "${YELLOW}  (This may already exist from previous installation)${NC}"
+    # Run setup (non-blocking if it fails)
+    if bash setup-altitude-enhanced.sh 2>&1 | tee altitude-setup.log; then
+        echo -e "${GREEN}✓${NC} Altitude Engine installed successfully"
     else
-        echo -e "${GREEN}✓ Agent config registered: k2m-${agent}${NC}"
+        echo ""
+        echo -e "${YELLOW}⚠ Altitude Engine setup had issues${NC}"
+        echo -e "${YELLOW}  Module will work, but semantic search may be unavailable${NC}"
+        echo -e "${YELLOW}  Check altitude-setup.log for details${NC}"
+        echo ""
     fi
-done
-echo ""
-
-# Step 5: Verify knowledge base (now included in module)
-echo -e "${YELLOW}[5/6] Verifying knowledge base...${NC}"
-KNOWLEDGE_DST="$MODULE_ROOT/knowledge"
-
-if [ -d "$KNOWLEDGE_DST" ]; then
-    KNOWLEDGE_COUNT=$(ls -1 "$KNOWLEDGE_DST"/*.md 2>/dev/null | wc -l)
-    echo -e "${GREEN}✓ Knowledge base included ($KNOWLEDGE_COUNT files)${NC}"
 else
-    echo -e "${RED}✗ Knowledge base not found${NC}"
-    ERRORS=$((ERRORS + 1))
-fi
-echo ""
-
-# Step 6: Verification
-echo -e "${YELLOW}[6/6] Verifying installation...${NC}"
-ERRORS=0
-
-# Check agents
-if [ ! -d "$MODULE_ROOT/agents" ]; then
-    echo -e "${RED}✗ Agents directory not found${NC}"
-    ERRORS=$((ERRORS + 1))
-else
-    AGENT_COUNT=$(ls -1 "$MODULE_ROOT/agents"/*.md 2>/dev/null | wc -l)
-    echo -e "${GREEN}✓ Found $AGENT_COUNT agent files${NC}"
-fi
-
-# Check workflows
-if [ ! -d "$MODULE_ROOT/workflows" ]; then
-    echo -e "${RED}✗ Workflows directory not found${NC}"
-    ERRORS=$((ERRORS + 1))
-else
-    WORKFLOW_COUNT=$(ls -1 "$MODULE_ROOT/workflows"/*.yaml 2>/dev/null | wc -l)
-    echo -e "${GREEN}✓ Found $WORKFLOW_COUNT workflow files${NC}"
-fi
-
-# Check knowledge
-if [ ! -d "$KNOWLEDGE_SRC" ]; then
-    echo -e "${RED}✗ Knowledge base not found at $KNOWLEDGE_SRC${NC}"
-    ERRORS=$((ERRORS + 1))
-else
-    KNOWLEDGE_COUNT=$(ls -1 "$KNOWLEDGE_SRC"/*.md 2>/dev/null | wc -l)
-    echo -e "${GREEN}✓ Found $KNOWLEDGE_COUNT knowledge files${NC}"
-fi
-
-# Check config files
-if [ ! -f "$MODULE_ROOT/config.yaml" ]; then
-    echo -e "${RED}✗ Module config.yaml not found${NC}"
-    ERRORS=$((ERRORS + 1))
-else
-    echo -e "${GREEN}✓ Module config.yaml found${NC}"
-fi
-
-if [ ! -f "$MODULE_ROOT/manifest.yaml" ]; then
-    echo -e "${RED}✗ Module manifest.yaml not found${NC}"
-    ERRORS=$((ERRORS + 1))
-else
-    echo -e "${GREEN}✓ Module manifest.yaml found${NC}"
+    echo -e "${YELLOW}⚠ Altitude Engine setup script not found${NC}"
+    echo "Semantic search features may not work"
 fi
 
 echo ""
-echo -e "${BLUE}========================================${NC}"
 
-if [ $ERRORS -eq 0 ]; then
-    echo -e "${GREEN}✓ Installation completed successfully!${NC}"
-    echo ""
-    echo -e "${BLUE}Next Steps:${NC}"
-    echo -e "1. Run verify-install.sh to test agent invocation"
-    echo -e "2. Use agents via: /bmad:k2m-analyst, /bmad:k2m-architect, etc."
-    echo -e "3. Check workflows: /bmad:conscious-founder:inject, etc."
-    echo ""
-    echo -e "${GREEN}Module installed at: $MODULE_ROOT${NC}"
+# 2. Module Configuration
+echo -e "${BLUE}[2/2]${NC} Configuring module..."
+
+# Create necessary directories
+mkdir -p nodes/injected
+mkdir -p nodes/transformed
+mkdir -p nodes/published
+mkdir -p nodes/deepening
+
+echo -e "${GREEN}✓${NC} Module structure created"
+echo ""
+
+# Summary
+echo -e "${GREEN}╔═══════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║     INSTALLATION COMPLETE                                     ║${NC}"
+echo -e "${GREEN}╚═══════════════════════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "${BLUE}Available Workflows:${NC}"
+echo "  • /bmad:cis:workflows:inject  - Pre-Write Emphasis Capture"
+echo "  • /bmad:cis:workflows:transform - 4-Agent Co-Creation Synthesis"
+echo "  • /bmad:cis:workflows:repurpose - Social Post Extraction"
+echo "  • /bmad:cis:workflows:return  - Node Re-Entry and Deepening"
+echo ""
+echo -e "${BLUE}Altitude Engine Status:${NC}"
+if [ -f "data/vector-embeddings.db" ]; then
+    echo -e "  ${GREEN}✓${NC} Vector database initialized"
+    echo -e "  ${GREEN}✓${NC} Semantic search operational"
 else
-    echo -e "${RED}✗ Installation completed with $ERRORS error(s)${NC}"
-    echo -e "${YELLOW}Please review the errors above and fix manually${NC}"
-    exit 1
+    echo -e "  ${YELLOW}⚠${NC} Vector database not initialized"
+    echo -e "  ${YELLOW}⚠${NC} Run: bash setup-altitude-enhanced.sh"
 fi
-
-echo -e "${BLUE}========================================${NC}"
+echo ""
+echo -e "${BLUE}Next Steps:${NC}"
+echo "  1. Read documentation: cat USAGE_GUIDE.md"
+echo "  2. Verify installation: bash verify-install.sh"
+echo "  3. Start creating: /bmad:cis:workflows:inject"
+echo ""

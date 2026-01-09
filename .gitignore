@@ -40,3 +40,4 @@ venv/
 # Backup files
 *.bak
 *.backup
+nul
