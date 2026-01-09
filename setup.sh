@@ -78,21 +78,16 @@ for agent in analyst architect copywriter editor; do
 done
 echo ""
 
-# Step 5: Create symbolic links for knowledge base
-echo -e "${YELLOW}[5/6] Linking knowledge base...${NC}"
-KNOWLEDGE_SRC="$PROJECT_ROOT/_bmad/knowledge"
+# Step 5: Verify knowledge base (now included in module)
+echo -e "${YELLOW}[5/6] Verifying knowledge base...${NC}"
 KNOWLEDGE_DST="$MODULE_ROOT/knowledge"
 
-if [ -L "$KNOWLEDGE_DST" ]; then
-    # Remove existing symlink
-    rm "$KNOWLEDGE_DST"
-fi
-
-if [ ! -e "$KNOWLEDGE_DST" ]; then
-    ln -s "$KNOWLEDGE_SRC" "$KNOWLEDGE_DST"
-    echo -e "${GREEN}✓ Knowledge base linked${NC}"
+if [ -d "$KNOWLEDGE_DST" ]; then
+    KNOWLEDGE_COUNT=$(ls -1 "$KNOWLEDGE_DST"/*.md 2>/dev/null | wc -l)
+    echo -e "${GREEN}✓ Knowledge base included ($KNOWLEDGE_COUNT files)${NC}"
 else
-    echo -e "${YELLOW}⚠ Knowledge base already exists${NC}"
+    echo -e "${RED}✗ Knowledge base not found${NC}"
+    ERRORS=$((ERRORS + 1))
 fi
 echo ""
 

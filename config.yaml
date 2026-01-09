@@ -17,7 +17,7 @@ paths:
   module_root: "{project-root}/_bmad/modules/conscious-founder"
   agents: "{project-root}/_bmad/modules/conscious-founder/agents"
   workflows: "{project-root}/_bmad/modules/conscious-founder/workflows"
-  knowledge: "{project-root}/_bmad/knowledge"
+  knowledge: "{project-root}/_bmad/modules/conscious-founder/knowledge"
   output: "{project-root}/_bmad-output/conscious-founder"
 
 # Agent configuration
@@ -76,9 +76,9 @@ workflows:
     description: Extract Type A/B/C social posts using ACM framework
     file: "repurpose.yaml"
 
-# Knowledge base configuration
+# Knowledge base configuration (now included in module)
 knowledge:
-  base_path: "{project-root}/_bmad/knowledge"
+  base_path: "{project-root}/_bmad/modules/conscious-founder/knowledge"
   files:
     - acm-framework.md
     - module-execution.md
@@ -88,6 +88,7 @@ knowledge:
     - pattern-selection.md
     - checkpoint-philosophy.md
     - cta-placement.md
+    - README.md
 
 # Output configuration
 output:
