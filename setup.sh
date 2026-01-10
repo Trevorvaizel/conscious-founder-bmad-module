@@ -121,9 +121,25 @@ echo ""
 # 3. Register Slash Commands with BMAD
 echo -e "${BLUE}[3/3]${NC} Registering slash commands..."
 
-# Find project root (where .claude directory is)
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
-COMMANDS_DIR="$PROJECT_ROOT/.claude/commands/bmad/conscious-founder"
+# Find project root by searching upward for .claude directory
+# This works regardless of where the module is installed
+SEARCH_DIR="$SCRIPT_DIR"
+PROJECT_ROOT=""
+
+while [ "$SEARCH_DIR" != "/" ]; do
+    if [ -d "$SEARCH_DIR/.claude" ]; then
+        PROJECT_ROOT="$SEARCH_DIR"
+        break
+    fi
+    SEARCH_DIR="$(dirname "$SEARCH_DIR")"
+done
+
+if [ -z "$PROJECT_ROOT" ]; then
+    echo -e "${YELLOW}⚠ Could not find .claude directory${NC}"
+    echo "Slash commands will not be registered."
+    echo "You can manually run setup.sh from a BMAD project to register commands."
+else
+    COMMANDS_DIR="$PROJECT_ROOT/.claude/commands/bmad/conscious-founder"
 
 # Create command directory structure
 mkdir -p "$COMMANDS_DIR/agents"
@@ -273,6 +289,7 @@ EOF
 echo -e "${GREEN}✓${NC} Slash commands registered: 8 commands created"
 echo -e "  ${GREEN}✓${NC} 4 agent commands: /bmad:k2m-analyst, /bmad:k2m-architect, /bmad:k2m-copywriter, /bmad:k2m-editor"
 echo -e "  ${GREEN}✓${NC} 4 workflow commands: /bmad:conscious-founder:inject, transform, return, repurpose"
+fi  # End of PROJECT_ROOT check
 echo ""
 echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"
 echo -e "${BLUE}                        SUMMARY                                  ${NC}"
