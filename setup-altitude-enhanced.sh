@@ -271,8 +271,8 @@ sys.path.insert(0, 'data')
 try:
     from altitude_engine import AltitudeEngine
 
-    # Create engine
-    engine = AltitudeEngine('data/vector-embeddings.db', enable_fallback=True)
+    # Create engine - eager loading (model MUST download during install)
+    engine = AltitudeEngine('data/vector-embeddings.db', enable_fallback=False)
 
     # Initialize database
     if engine.initialize():
@@ -351,7 +351,7 @@ try:
 
     # Test Altitude Engine
     from altitude_engine import AltitudeEngine
-    engine = AltitudeEngine('data/vector-embeddings.db', enable_fallback=True)
+    engine = AltitudeEngine('data/vector-embeddings.db', enable_fallback=False)
     engine.initialize()
     print("✓ Database connection successful")
     engine.close()
@@ -401,8 +401,8 @@ print_usage_hint() {
     echo "   cat ALTITUDE_ENGINE.md"
     echo "   cat INSTALLATION.md"
     echo ""
-    echo -e "${YELLOW}Note:${NC} The ML model (~80MB) will download on first use"
-    echo "       Location: ~/.cache/huggingface/"
+    echo -e "${GREEN}✓${NC} ML model downloaded and ready for semantic search"
+    echo -e "${GREEN}✓${NC} Model cached at: ~/.cache/huggingface/"
     echo ""
     echo "For troubleshooting, check the log file:"
     echo "   cat $LOG_FILE"
