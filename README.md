@@ -6,18 +6,20 @@ AI-human co-creative newsletter synthesis through ACM framework and juggling pat
 
 ```bash
 # Clone the repository
-git clone https://github.com/Trevorvaizel/conscious-founder.git
-cd conscious-founder/_bmad/modules/conscious-founder
+git clone https://github.com/Trevorvaizel/conscious-founder-bmad-module.git
+cd conscious-founder-bmad-module
 
-# Run one-command installation
-bash setup.sh
+# Run path-independent installer (works from any directory!)
+bash install.sh
 ```
 
 That's it! The installer will:
+- ✅ Automatically place module in correct location (`_bmad/modules/conscious-founder/`)
 - ✅ Set up Altitude Engine (semantic search)
 - ✅ Install all Python dependencies
 - ✅ Initialize vector database
 - ✅ Configure module structure
+- ✅ Register slash commands
 - ✅ Verify everything works
 
 ---
@@ -60,19 +62,22 @@ That's it! The installer will:
 ### Quick Start (Linux/macOS/WSL)
 
 ```bash
-# Clone the repository
-git clone https://github.com/Trevorvaizel/conscious-founder.git
-cd conscious-founder/_bmad/modules/conscious-founder
+# Clone the module repository
+git clone https://github.com/Trevorvaizel/conscious-founder-bmad-module.git
+cd conscious-founder-bmad-module
 
-# Run one-command installation
-bash setup.sh
+# Run path-independent installer (works from any directory!)
+bash install.sh
 ```
 
-That's it! The installer will:
+The installer will automatically:
+- ✅ Detect your BMAD project root
+- ✅ Move module to correct location (`_bmad/modules/conscious-founder/`)
 - ✅ Set up Altitude Engine (semantic search)
 - ✅ Install all Python dependencies (sentence-transformers, numpy)
 - ✅ Initialize vector database
 - ✅ Configure module structure
+- ✅ Register 8 slash commands
 - ✅ Verify everything works
 
 ### Windows Installation
@@ -83,17 +88,17 @@ That's it! The installer will:
 wsl
 
 # In WSL terminal:
-git clone https://github.com/Trevorvaizel/conscious-founder.git
-cd conscious-founder/_bmad/modules/conscious-founder
-bash setup.sh
+git clone https://github.com/Trevorvaizel/conscious-founder-bmad-module.git
+cd conscious-founder-bmad-module
+bash install.sh
 ```
 
 **Option 2: Git Bash**
 ```bash
 # In Git Bash:
-git clone https://github.com/Trevorvaizel/conscious-founder.git
-cd conscious-founder/_bmad/modules/conscious-founder
-./setup.sh
+git clone https://github.com/Trevorvaizel/conscious-founder-bmad-module.git
+cd conscious-founder-bmad-module
+./install.sh
 ```
 
 **Option 3: Manual Installation**
@@ -212,7 +217,9 @@ conscious-founder/
 ├── knowledge -> ../../knowledge  # Symlink to knowledge base
 ├── config.yaml            # Module configuration
 ├── manifest.yaml          # Module metadata
-├── setup.sh               # Installation script
+├── install.sh             # Path-independent master installer (USE THIS!)
+├── setup.sh               # Module setup script (called by install.sh)
+├── smart-commit.sh        # Commit helper for submodule development
 ├── uninstall.sh           # Uninstallation script
 ├── verify-install.sh      # Verification script
 └── README.md              # This file
