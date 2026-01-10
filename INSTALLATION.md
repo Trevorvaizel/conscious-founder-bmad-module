@@ -109,22 +109,45 @@ bash verify-install-enhanced.sh
 
 ## Module Installation
 
-When installing the Conscious-Founder module:
+When installing the Conscious-Founder module into ANY BMAD project:
 
-### Option 1: Full Module Setup (includes Altitude Engine)
+### Path-Independent Installation (Recommended)
 
 ```bash
-cd conscious-founder/
-bash _module-installer/setup.sh
+# Clone the module repository
+git clone https://github.com/Trevorvaizel/conscious-founder-bmad-module.git
+cd conscious-founder-bmad-module
+
+# Run the path-independent installer
+bash install.sh
 ```
 
-This will automatically run the Altitude Engine setup if available.
+**This will automatically:**
+- ✅ Detect your BMAD project root
+- ✅ Install module to `_bmad/modules/conscious-founder/`
+- ✅ Run Altitude Engine setup (if available)
+- ✅ Register all slash commands
+- ✅ Verify installation
 
-### Option 2: Module Verification Only
+**Works in ANY BMAD project** - no need to manually navigate to specific directories!
+
+### Manual Installation (Advanced)
+
+If you prefer manual setup or the module is already in the correct location:
 
 ```bash
-cd conscious-founder/
-bash _module-installer/verify-install.sh
+# From module directory
+cd _bmad/modules/conscious-founder/
+bash setup.sh
+```
+
+This runs the module setup only (assumes module is already in the correct location).
+
+### Verification
+
+```bash
+# From module directory
+bash verify-install.sh
 ```
 
 Checks all module components including Altitude Engine status.
