@@ -1,0 +1,19 @@
+# Force LF line endings for shell scripts (critical for bash)
+*.sh text eol=lf
+
+# Force LF for YAML workflow files
+*.yaml text eol=lf
+*.yml text eol=lf
+
+# Force LF for Python files
+*.py text eol=lf
+
+# Markdown can use OS-native line endings
+*.md text
+
+# Ensure no conversion for binary files
+*.png binary
+*.jpg binary
+*.wav binary
+*.onnx binary
+*.db binary
