@@ -102,23 +102,10 @@ echo ""
 mkdir -p "$(dirname "$TARGET_DIR")"
 
 # Move module to target location
-echo "Moving module files..."
-if [ "$SCRIPT_DIR" != "$(pwd)" ]; then
-    # We're running from a different directory, use cp
-    echo -e "${BLUE}  → Copying files...${NC}"
-    cp -r "$SCRIPT_DIR" "$TARGET_DIR"
-    echo -e "${GREEN}✓${NC} Files copied"
-else
-    # We're running from within the module directory
-    # This is tricky - we need to move the directory we're standing in
-    echo -e "${YELLOW}⚠${NC} Cannot move running directory"
-    echo ""
-    echo "Please run this installer from outside the module directory:"
-    echo "  cd .."
-    echo "  bash $MODULE_NAME/install.sh"
-    echo ""
-    exit 1
-fi
+echo "Installing module files..."
+echo -e "${BLUE}  → Copying files to: $TARGET_DIR${NC}"
+cp -r "$SCRIPT_DIR" "$TARGET_DIR"
+echo -e "${GREEN}✓${NC} Files copied successfully"
 
 echo ""
 echo -e "${YELLOW}Step 4: Running module setup...${NC}"
